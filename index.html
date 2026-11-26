@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Clickable research prototype of a multilingual child-safety reporting app. It sends and stores nothing.">
+<title>Bachay Mehfooz Prototype</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Public+Sans:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap">
+<style>
+/* Layout: phone prototype beside a policy-routing table; stacks on narrow screens. */
+:root {
+  --bg: #eef2f3;
+  --surface: #ffffff;
+  --ink: #14303a;
+  --muted: #55707a;
+  --line: #cfdadd;
+  --accent: #0d6b6b;
+  --accent-ink: #ffffff;
+  --alert: #b3361d;
+  --alert-bg: #fbe9e4;
+  --soft: #e1eeee;
+  --font-display: "Bricolage Grotesque", "Segoe UI", sans-serif;
+  --font-body: "Public Sans", "Segoe UI", sans-serif;
+  --font-rtl: "Noto Naskh Arabic", "Noto Nastaliq Urdu", "Segoe UI", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1a1e; --surface: #162429; --ink: #e3eef0; --muted: #90a9b0; --line: #2b4048;
+    --accent: #4cc2bd; --accent-ink: #082325; --alert: #ff8f77; --alert-bg: #3a1f19; --soft: #1c3338;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1a1e; --surface: #162429; --ink: #e3eef0; --muted: #90a9b0; --line: #2b4048;
+  --accent: #4cc2bd; --accent-ink: #082325; --alert: #ff8f77; --alert-bg: #3a1f19; --soft: #1c3338;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  padding-block: 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  line-height: 1.5;
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+header h1 { font-family: var(--font-display); font-size: clamp(1.6rem, 5vw, 2.4rem); line-height: 1.1; margin: 0 0 8px; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 62ch; }
+.tag { display: inline-block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+.stage { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 820px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+
+/* Phone */
+.screens-nav { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.screens-nav button { font: inherit; font-size: 0.82rem; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.screens-nav button[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.phone { width: 100%; max-width: 360px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 28px; box-shadow: 0 10px 30px rgba(10,40,50,0.12); overflow: hidden; display: flex; flex-direction: column; min-height: 600px; }
+.appbar { background: var(--accent); color: var(--accent-ink); padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.appbar strong { font-family: var(--font-display); font-size: 1.05rem; }
+.appbar span { font-size: 0.72rem; opacity: 0.85; letter-spacing: 0.06em; text-transform: uppercase; }
+.body { padding: 18px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.rtl { direction: rtl; font-family: var(--font-rtl); font-size: 1.05em; line-height: 1.7; }
+.rtl .appbar strong, .rtl h2, .rtl .opt-label { font-family: var(--font-rtl); }
+h2 { font-family: var(--font-display); font-size: 1.2rem; margin: 0; line-height: 1.25; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 0.9rem; margin: 0; }
+.langs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lang { font: inherit; text-align: center; padding: 14px 8px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lang:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.lang b { font-family: var(--font-rtl); font-size: 1.25rem; font-weight: 600; }
+.lang small { color: var(--muted); font-size: 0.72rem; }
+.lang[aria-pressed="true"] { border-color: var(--accent); background: var(--soft); }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt { font: inherit; padding: 12px 10px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; min-width: 0; }
+.opt svg { width: 34px; height: 34px; stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.opt-label { font-size: 0.82rem; line-height: 1.3; }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: var(--soft); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 0.85rem; padding: 7px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--soft); }
+.voice { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 12px; }
+.mic { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-ink); cursor: pointer; display: grid; place-items: center; flex-shrink: 0; }
+.mic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+.mic.on { background: var(--alert); }
+.bars { display: flex; gap: 3px; align-items: center; height: 24px; }
+.bars i { width: 3px; background: var(--accent); border-radius: 2px; height: 6px; }
+.mic.on ~ .bars i { animation: pulse 0.9s ease-in-out infinite; }
+.mic.on ~ .bars i:nth-child(2) { animation-delay: 0.15s; }
+.mic.on ~ .bars i:nth-child(3) { animation-delay: 0.3s; }
+.mic.on ~ .bars i:nth-child(4) { animation-delay: 0.45s; }
+@keyframes pulse { 50% { height: 22px; } }
+@media (prefers-reduced-motion: reduce) { .mic.on ~ .bars i { animation: none; height: 14px; } }
+.voice small { color: var(--muted); font-size: 0.72rem; line-height: 1.3; flex: 1; min-width: 0; }
+.send { font: inherit; font-weight: 600; padding: 14px; border-radius: 14px; border: none; background: var(--accent); color: var(--accent-ink); cursor: pointer; margin-top: auto; }
+.send:disabled { opacity: 0.4; cursor: not-allowed; }
+.sos { background: var(--alert-bg); color: var(--alert); border-radius: 12px; padding: 10px 12px; font-size: 0.88rem; font-weight: 600; text-align: center; }
+.done { text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; padding-top: 12px; }
+.check { width: 64px; height: 64px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; }
+.check svg { width: 32px; height: 32px; stroke: var(--accent); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.ref { font-variant-numeric: tabular-nums; letter-spacing: 0.08em; font-weight: 600; background: var(--soft); padding: 6px 12px; border-radius: 8px; font-family: var(--font-body); direction: ltr; }
+.routed { align-self: stretch; text-align: start; border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-size: 0.82rem; font-family: var(--font-body); direction: ltr; }
+.routed dt { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 6px; }
+.routed dt:first-child { margin-top: 0; }
+.routed dd { margin: 0; }
+
+/* Policy panel */
+.panel { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.panel h3 { font-family: var(--font-display); font-size: 1.25rem; margin: 0; }
+.panel p { margin: 0; color: var(--muted); }
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 0.86rem; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+tr.hl td { background: var(--soft); }
+.note { font-size: 0.82rem; color: var(--muted); border-inline-start: 3px solid var(--accent); padding-inline-start: 12px; }
+footer { font-size: 0.8rem; color: var(--muted); max-width: 70ch; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+</style>
+<style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="tag">Policy design prototype</div>
+    <h1>Bachay Mehfooz: a multilingual child-safety reporting app</h1>
+    <p>A clickable concept for the paper on language access and child-friendly policing in Pakistan. Pick a language, report a concern with icons, and see where the report would be routed under existing law. Nothing is sent or stored.</p>
+  </header>
+
+  <div class="stage">
+    <div>
+      <div class="screens-nav" role="group" aria-label="Prototype screens">
+        <button data-go="1" aria-current="true">1 Language</button>
+        <button data-go="2">2 Report</button>
+        <button data-go="3">3 Confirmation</button>
+      </div>
+      <div class="phone" id="phone" aria-live="polite"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Proposed routing under current law</h3>
+      <p>Each icon in the app maps to an existing legal mechanism. The highlighted row follows the report type chosen in the prototype.</p>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th>Report type</th><th>Existing mechanism</th><th>Language gap the app targets</th></tr></thead>
+          <tbody id="routing"></tbody>
+        </table>
+      </div>
+      <p class="note">Design principle: the reporter never has to name a law or write in English or formal Urdu. The app does the classification, and staff see the report in the language of the reporter with a translation.</p>
+    </div>
+  </div>
+
+  <footer>Prototype for research illustration only. The translations are drafts and must be checked by native speakers of each language before any user testing. The Balochi text is a first draft, and the Balti entry is a placeholder that reuses Urdu wording until a Balti speaker supplies the translation. Voice input is shown as a design element and does not record. If you are in danger now, call the police on 15.</footer>
+</div>
+
+<script>
+var T = {
+  en: { name: "English", native: "English", dir: "ltr",
+    title: "Child Safety Report", tagline: "Tell us what happened. Choose your language.", pick: "Choose language", next: "Continue",
+    what: "What do you want to report?", missing: "Missing child", abuse: "Child being hurt", street: "Street crime or child in danger", labour: "Child forced to work",
+    where: "Where did it happen?", places: ["Market", "Bus stop", "Street", "Home", "Other"], voice: "Or tell us by voice (prototype, not recording)",
+    send: "Send report", sent: "Report received (demo)", sentSub: "Your reference number", emergency: "In danger now? Call 15" },
+  ur: { name: "Urdu", native: "اردو", dir: "rtl",
+    title: "بچوں کے تحفظ کی رپورٹ", tagline: "ہمیں بتائیں کیا ہوا۔ اپنی زبان چنیں۔", pick: "زبان چنیں", next: "آگے بڑھیں",
+    what: "آپ کیا رپورٹ کرنا چاہتے ہیں؟", missing: "گمشدہ بچہ", abuse: "بچے کو نقصان پہنچایا جا رہا ہے", street: "اسٹریٹ کرائم یا خطرے میں بچہ", labour: "بچے سے زبردستی کام",
+    where: "یہ کہاں ہوا؟", places: ["بازار", "بس اسٹاپ", "گلی", "گھر", "دوسرا"], voice: "یا آواز میں بتائیں (نمونہ، ریکارڈنگ نہیں)",
+    send: "رپورٹ بھیجیں", sent: "رپورٹ موصول ہوئی (ڈیمو)", sentSub: "آپ کا حوالہ نمبر", emergency: "ابھی خطرہ ہے؟ 15 پر کال کریں" },
+  sd: { name: "Sindhi", native: "سنڌي", dir: "rtl",
+    title: "ٻارن جي حفاظت جو رپورٽ", tagline: "اسان کي ٻڌايو ڇا ٿيو. پنهنجي ٻولي چونڊيو.", pick: "ٻولي چونڊيو", next: "اڳتي هلو",
+    what: "توهان ڇا رپورٽ ڪرڻ چاهيو ٿا؟", missing: "گم ٿيل ٻار", abuse: "ٻار کي نقصان پهچايو پيو وڃي", street: "اسٽريٽ ڪرائم يا خطري ۾ ٻار", labour: "ٻار کان زوريءَ ڪم وٺڻ",
+    where: "اهو ڪٿي ٿيو؟", places: ["بازار", "بس اسٽاپ", "گهٽي", "گهر", "ٻيو"], voice: "يا آواز ۾ ٻڌايو (نمونو، رڪارڊنگ ناهي)",
+    send: "رپورٽ موڪليو", sent: "رپورٽ ملي وئي (ڊيمو)", sentSub: "توهان جو حوالو نمبر", emergency: "هاڻي خطرو آهي؟ 15 تي ڪال ڪريو" },
+  ps: { name: "Pashto", native: "پښتو", dir: "rtl",
+    title: "د ماشومانو د خوندیتوب راپور", tagline: "موږ ته ووايئ څه پیښ شول. خپله ژبه وټاکئ.", pick: "ژبه وټاکئ", next: "مخته لاړ شئ",
+    what: "تاسو څه راپور کول غواړئ؟", missing: "ورک ماشوم", abuse: "ماشوم ته زیان رسول کیږي", street: "د سړک جرم یا په خطر کې ماشوم", labour: "ماشوم ته په زوره کار",
+    where: "دا چیرته پیښ شول؟", places: ["بازار", "د بس ډګر", "سړک", "کور", "بل"], voice: "یا په غږ ووایئ (نمونه، ثبت نشته)",
+    send: "راپور ولیږئ", sent: "راپور ترلاسه شو (ډیمو)", sentSub: "ستاسو د حوالې شمیره", emergency: "اوس خطر دی؟ 15 ته زنګ ووهئ" },
+  pa: { name: "Punjabi", native: "پنجابی", dir: "rtl",
+    title: "بچیاں دی حفاظت دی رپورٹ", tagline: "سانوں دسو کی ہویا۔ اپنی بولی چنو۔", pick: "بولی چنو", next: "اگے ودھو",
+    what: "تُسیں کی رپورٹ کرنا چاہندے او؟", missing: "گمشدہ بچہ", abuse: "بچے نوں نقصان پہنچایا جا رہیا اے", street: "اسٹریٹ کرائم یا خطرے وچ بچہ", labour: "بچے کولوں زبردستی کم",
+    where: "ایہہ کتھے ہویا؟", places: ["بازار", "بس اڈہ", "گلی", "گھر", "ہور"], voice: "یا آواز وچ دسو (نمونہ، ریکارڈنگ نہیں)",
+    send: "رپورٹ گھلو", sent: "رپورٹ مل گئی (ڈیمو)", sentSub: "تہاڈا حوالہ نمبر", emergency: "ہُنے خطرہ اے؟ 15 تے کال کرو" },
+  bl: { name: "Balochi", native: "بلوچی", dir: "rtl", draft: true,
+    title: "بچکانی حفاظتی رپورٹ", tagline: "ما ءَ بگوش چی بوت. وتی زبان گچین کن.", pick: "زبان گچین کن", next: "برو پیش",
+    what: "تو چی رپورٹ کنگ لوٹئے؟", missing: "گار بوتگیں بچک", abuse: "بچک ءَ آزار دیگ بیت", street: "اسٹریٹ کرائم یا خطرہ ءَ بچک", labour: "بچک ءَ زوراکی کار",
+    where: "اے کجا بوت؟", places: ["بازار", "بس اڈہ", "کوچہ", "کور", "دومی"], voice: "یا آواز ءَ بگوش (نمونگ، ریکارڈ نہ بیت)",
+    send: "رپورٹ روان کن", sent: "رپورٹ رسیت (ڈیمو)", sentSub: "تئی حوالہ نمبر", emergency: "اے وھدءَ خطرہ ایں؟ 15 ءَ فون کن" },
+  bt: { name: "Balti", native: "بلتی", dir: "rtl", draft: true,
+    title: "بچوں کی حفاظت کی رپورٹ", tagline: "ہمیں بتائیں کیا ہوا۔ اپنی زبان چنیں۔", pick: "زبان چنیں", next: "آگے بڑھیں",
+    what: "آپ کیا رپورٹ کرنا چاہتے ہیں؟", missing: "گمشدہ بچہ", abuse: "بچے کو نقصان پہنچایا جا رہا ہے", street: "اسٹریٹ کرائم یا خطرے میں بچہ", labour: "بچے سے زبردستی کام",
+    where: "یہ کہاں ہوا؟", places: ["بازار", "بس اسٹاپ", "گلی", "گھر", "دوسرا"], voice: "یا آواز میں بتائیں (نمونہ، ریکارڈنگ نہیں)",
+    send: "رپورٹ بھیجیں", sent: "رپورٹ موصول ہوئی (ڈیمو)", sentSub: "آپ کا حوالہ نمبر", emergency: "ابھی خطرہ ہے؟ 15 پر کال کریں" }
+};
+var ORDER = ["en", "ur", "sd", "ps", "pa", "bl", "bt"];
+var TYPES = [
+  { id: "missing", icon: '<circle cx="17" cy="10" r="4"/><path d="M8 28c0-5 4-8 9-8s9 3 9 8"/><path d="M27 6l4 4M31 6l-4 4"/>',
+    law: "Zainab Alert, Response and Recovery Act 2020", route: "Zainab Alert mechanism (ZARRA) and police", gap: "Alerts and forms are in formal Urdu or English; families reporting a missing child may speak a regional language." },
+  { id: "abuse", icon: '<circle cx="17" cy="10" r="4"/><path d="M8 28c0-5 4-8 9-8s9 3 9 8"/><path d="M27 8v7M27 19v1"/>',
+    law: "ICT Child Protection Act 2018; Criminal Law (Amendment) Act 2016", route: "Child protection authority and police", gap: "Children describe harm in their own words; legal categories are not how a child or parent would name it." },
+  { id: "street", icon: '<path d="M4 28h28M8 28V14l10-6 10 6v14"/><path d="M15 28v-8h6v8"/>',
+    law: "Juvenile Justice System Act 2018 (if a child is accused); police complaint process", route: "Police (15) and juvenile justice officials", gap: "FIR and complaint procedure run in Urdu or English; street children and migrants often speak neither fluently." },
+  { id: "labour", icon: '<path d="M6 26l8-8 4 4 8-10"/><path d="M6 30h24"/>',
+    law: "Employment of Children Act 1991", route: "Labour department inspectors", gap: "Employers and families are reached in the local language; written complaint forms are not." }
+];
+var state = { lang: "en", screen: 1, type: null, place: null, voice: false };
+var phone = document.getElementById("phone");
+
+function icon(t) { return '<svg viewBox="0 0 36 36" aria-hidden="true">' + t.icon + '</svg>'; }
+
+function render() {
+  var L = T[state.lang];
+  var rtl = L.dir === "rtl";
+  var html = '<div class="' + (rtl ? "rtl" : "") + '" style="display:flex;flex-direction:column;flex:1" dir="' + L.dir + '">';
+  html += '<div class="appbar"><strong>' + L.title + '</strong><span style="direction:ltr">Demo</span></div><div class="body">';
+  if (state.screen === 1) {
+    html += '<h2>' + L.tagline + '</h2><p class="sub">' + L.pick + '</p><div class="langs">';
+    ORDER.forEach(function (k) {
+      html += '<button class="lang" data-lang="' + k + '" aria-pressed="' + (state.lang === k) + '"><b>' + T[k].native + '</b><small style="font-family:var(--font-body);direction:ltr">' + T[k].name + (T[k].draft ? ' · draft' : '') + '</small></button>';
+    });
+    html += '</div><button class="send" data-go="2">' + L.next + '</button>';
+  } else if (state.screen === 2) {
+    html += '<h2>' + L.what + '</h2><div class="opts">';
+    TYPES.forEach(function (t) {
+      html += '<button class="opt" data-type="' + t.id + '" aria-pressed="' + (state.type === t.id) + '">' + icon(t) + '<span class="opt-label">' + L[t.id] + '</span></button>';
+    });
+    html += '</div><div><p class="sub" style="margin-bottom:8px">' + L.where + '</p><div class="chips">';
+    L.places.forEach(function (p, i) {
+      html += '<button class="chip" data-place="' + i + '" aria-pressed="' + (state.place === i) + '">' + p + '</button>';
+    });
+    html += '</div></div><div class="voice"><button class="mic' + (state.voice ? " on" : "") + '" id="mic" aria-label="Voice"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><div class="bars"><i></i><i></i><i></i><i></i></div><small>' + L.voice + '</small></div>';
+    html += '<div class="sos">' + L.emergency + '</div>';
+    html += '<button class="send" id="send"' + (state.type === null ? " disabled" : "") + '>' + L.send + '</button>';
+  } else {
+    var t = TYPES.filter(function (x) { return x.id === state.type; })[0] || TYPES[0];
+    html += '<div class="done"><div class="check"><svg viewBox="0 0 32 32"><path d="M7 17l6 6 12-13"/></svg></div><h2>' + L.sent + '</h2><p class="sub">' + L.sentSub + '</p><div class="ref">DEMO-0417</div>';
+    html += '<dl class="routed"><dt>Language received</dt><dd>' + T[state.lang].name + ' (translation attached for staff)</dd><dt>Report type</dt><dd>' + t.id.charAt(0).toUpperCase() + t.id.slice(1) + '</dd><dt>Routed to</dt><dd>' + t.route + '</dd></dl></div>';
+    html += '<div class="sos">' + L.emergency + '</div>';
+  }
+  html += '</div></div>';
+  phone.innerHTML = html;
+
+  document.querySelectorAll(".screens-nav button").forEach(function (b) {
+    b.setAttribute("aria-current", String(Number(b.dataset.go) === state.screen));
+  });
+  var rows = "";
+  TYPES.forEach(function (t) {
+    rows += '<tr class="' + (state.type === t.id ? "hl" : "") + '"><td><strong>' + t.id.charAt(0).toUpperCase() + t.id.slice(1) + '</strong></td><td>' + t.law + '<br><span style="color:var(--muted)">' + t.route + '</span></td><td>' + t.gap + '</td></tr>';
+  });
+  document.getElementById("routing").innerHTML = rows;
+}
+
+document.addEventListener("click", function (e) {
+  var el = e.target.closest("[data-lang],[data-type],[data-place],[data-go],#mic,#send");
+  if (!el) return;
+  if (el.dataset.lang) state.lang = el.dataset.lang;
+  else if (el.dataset.type) state.type = el.dataset.type;
+  else if (el.dataset.place) state.place = Number(el.dataset.place);
+  else if (el.dataset.go) {
+    var n = Number(el.dataset.go);
+    if (n === 3 && state.type === null) state.type = "street";
+    state.screen = n;
+  }
+  else if (el.id === "mic") state.voice = !state.voice;
+  else if (el.id === "send") state.screen = 3;
+  render();
+});
+render();
+</script>
+</body>
+</html>
